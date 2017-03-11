@@ -26,7 +26,7 @@ module Account
     def self.load(aggregate_uuid)
       # Fold left. ie: reduce
       EventStore.events_for_aggregate(aggregate_uuid)
-        .reduce(State.new(aggregate_uuid, 0)) do |account, event|
+        .reduce(State.new(aggregate_uuid, 0)) do |state, event|
 
         # Pattern match
         case event.type
@@ -35,14 +35,14 @@ module Account
         # fn(state, event) -> state
         when :deposit
           amount = event.payload.fetch(:amount)
-          new_balance = account.balance + amount
+          new_balance = state.balance + amount
           State.new(aggregate_uuid, new_balance)
         when :withdraw
           amount = event.payload.fetch(:amount)
-          new_balance = account.balance - amount
+          new_balance = state.balance - amount
           State.new(aggregate_uuid, new_balance)
         else
-          account
+          state
         end
       end
     end
