@@ -71,6 +71,8 @@ module Account
     end
   end
 
+  # Our public interface which Glues everything together.
+  # Contains both Command and Query methods but can be seperated.
   module API
     extend self
 
