@@ -24,10 +24,15 @@ module Account
 
   module Repository
     def self.load(aggregate_uuid)
+      # Fold left. ie: reduce
       EventStore.events_for_aggregate(aggregate_uuid)
         .reduce(State.new(aggregate_uuid, 0)) do |account, event|
 
+        # Pattern match
         case event.type
+
+        # functions which change the state given an event.
+        # fn(state, event) -> state
         when :deposit
           amount = event.payload.fetch(:amount)
           new_balance = account.balance + amount
@@ -43,6 +48,9 @@ module Account
     end
   end
 
+  # These are functions which generate events based on the the current state
+  # and a command
+  # fn(state, command) -> events
   module CommandHandler
     extend self
 
@@ -81,8 +89,8 @@ module Account
     end
 
     def get_current_balance(account_uuid)
-      # Will need to build a projection / lookup table when the event stream
-      # gets too large
+      # Will need to build a projection so we don't need to
+      # read the entire stream to do a lookup.
       account = Repository.load(account_uuid)
       """
       Balance for account #{account_uuid}
