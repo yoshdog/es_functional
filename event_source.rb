@@ -19,23 +19,23 @@ end
 
 module Account
   OutOfMoneyError = Class.new(StandardError)
-  Aggregate = Struct.new(:uuid, :balance)
+  State = Struct.new(:uuid, :balance)
   Command = Struct.new(:amount)
 
   module Repository
     def self.load(aggregate_uuid)
       EventStore.events_for_aggregate(aggregate_uuid)
-        .reduce(Aggregate.new(aggregate_uuid, 0)) do |account, event|
+        .reduce(State.new(aggregate_uuid, 0)) do |account, event|
 
         case event.type
         when :deposit
           amount = event.payload.fetch(:amount)
           new_balance = account.balance + amount
-          Aggregate.new(aggregate_uuid, new_balance)
+          State.new(aggregate_uuid, new_balance)
         when :withdraw
           amount = event.payload.fetch(:amount)
           new_balance = account.balance - amount
-          Aggregate.new(aggregate_uuid, new_balance)
+          State.new(aggregate_uuid, new_balance)
         else
           account
         end
