@@ -5,9 +5,14 @@ In the [video](https://www.youtube.com/watch?v=kZL41SMXWdM) Greg Young explains 
 
 fn(state, command) -> events
 
-# Processing events
+# Processing an event
 
 fn(state, event) -> state
+
+# Get current state
+
+reduce(events, fn(state, event) -> pattern_match(event, fn(state, event) -> state))
+
 ```
 
 This repo is me trying to implement a bank account app using these simple concepts.
