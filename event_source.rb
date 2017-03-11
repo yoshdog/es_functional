@@ -1,26 +1,28 @@
-#/usr/bin/env ruby
+#!/usr/bin/env ruby
 
 Event = Struct.new(:type, :payload)
 events = [
-  Event.new(:increment, {}),
-  Event.new(:increment, {}),
+  Event.new(:deposit, {amount: 100}),
+  Event.new(:deposit, {amount: 200}),
   Event.new(:poop, {}),
-  Event.new(:decrement, {}),
+  Event.new(:withdraw, {amount: 50}),
 ]
 
-def counter(state:, event:)
+def transaction(state:, event:)
   case event.type
-  when :increment
-    return state + 1
-  when :decrement
-    return state - 1
+  when :deposit
+    amount = event.payload.fetch(:amount)
+    return state + amount
+  when :withdraw
+    amount = event.payload.fetch(:amount)
+    return state - amount
   else
     return state
   end
 end
 
-final_count = events.reduce(0) do |count, event|
-  counter(state: count, event: event)
+current_balance = events.reduce(0) do |balance, event|
+  transaction(state: balance, event: event)
 end
 
-puts final_count
+puts current_balance
