@@ -11,7 +11,7 @@ fn(state, event) -> state
 
 # Get current state
 
-reduce(events, fn(state, event) -> pattern_match(event, fn(state, event) -> state))
+reduce(initial_state, events, fn(state, event) -> pattern_match(event, fn(state, event) -> state))
 
 ```
 
