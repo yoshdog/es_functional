@@ -79,6 +79,18 @@ module Account
       events = CommandHandler.withdraw_money(account, command)
       EventStore.sink(events)
     end
+
+    def get_current_balance(account_uuid)
+      # Will need to build a projection / lookup table when the event stream
+      # gets too large
+      account = Repository.load(account_uuid)
+      """
+      Balance for account #{account_uuid}
+      ---------------------------------------------------------
+
+      $ #{account.balance}
+      """
+    end
   end
 end
 
@@ -88,4 +100,4 @@ Account::API.deposit_money(account_uuid, 100)
 Account::API.withdraw_money(account_uuid, 50)
 Account::API.deposit_money(account_uuid, 25)
 
-puts Account::Repository.load(account_uuid)
+puts Account::API.get_current_balance(account_uuid)
