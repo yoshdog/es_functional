@@ -25,20 +25,20 @@ module Account
   # These are functions which generate events based on the the current state
   # and a command
   # fn(state, command) -> events
-  def self.deposit_money(account, command)
+  def self.deposit_money(state, command)
     deposit_amount = command.amount
 
-    [Event.new(account.uuid, :deposit, {amount: deposit_amount})]
+    [Event.new(state.uuid, :deposit, {amount: deposit_amount})]
   end
 
-  def self.withdraw_money(account, command)
+  def self.withdraw_money(state, command)
     withdraw_amount = command.amount
 
-    if account.balance < withdraw_amount
+    if state.balance < withdraw_amount
       raise OutOfMoneyError
     end
 
-    [Event.new(account.uuid, :withdraw, {amount: withdraw_amount})]
+    [Event.new(state.uuid, :withdraw, {amount: withdraw_amount})]
   end
 
   module Repository
