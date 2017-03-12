@@ -22,6 +22,25 @@ module Account
   State = Struct.new(:uuid, :balance)
   Command = Struct.new(:amount)
 
+  # These are functions which generate events based on the the current state
+  # and a command
+  # fn(state, command) -> events
+  def self.deposit_money(account, command)
+    deposit_amount = command.amount
+
+    [Event.new(account.uuid, :deposit, {amount: deposit_amount})]
+  end
+
+  def self.withdraw_money(account, command)
+    withdraw_amount = command.amount
+
+    if account.balance < withdraw_amount
+      raise OutOfMoneyError
+    end
+
+    [Event.new(account.uuid, :withdraw, {amount: withdraw_amount})]
+  end
+
   module Repository
     def self.load(aggregate_uuid)
       # Fold left. ie: reduce
@@ -48,29 +67,6 @@ module Account
     end
   end
 
-  # These are functions which generate events based on the the current state
-  # and a command
-  # fn(state, command) -> events
-  module CommandHandler
-    extend self
-
-    def deposit_money(account, command)
-      deposit_amount = command.amount
-
-      [Event.new(account.uuid, :deposit, {amount: deposit_amount})]
-    end
-
-    def withdraw_money(account, command)
-      withdraw_amount = command.amount
-
-      if account.balance < withdraw_amount
-        raise OutOfMoneyError
-      end
-
-      [Event.new(account.uuid, :withdraw, {amount: withdraw_amount})]
-    end
-  end
-
   # Our public interface which Glues everything together.
   # Contains both Command and Query methods but can be seperated.
   module API
@@ -79,14 +75,14 @@ module Account
     def deposit_money(account_uuid, deposit_amount)
       command = Command.new(deposit_amount)
       account = Repository.load(account_uuid)
-      events = CommandHandler.deposit_money(account, command)
+      events = ::Account.deposit_money(account, command)
       EventStore.sink(events)
     end
 
     def withdraw_money(account_uuid, withdraw_amount)
       command = Command.new(withdraw_amount)
       account = Repository.load(account_uuid)
-      events = CommandHandler.withdraw_money(account, command)
+      events = ::Account.withdraw_money(account, command)
       EventStore.sink(events)
     end
 
