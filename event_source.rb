@@ -3,10 +3,10 @@ require 'securerandom'
 
 Event = Struct.new(:aggregate_uuid, :type, :payload)
 
-EVENTS = []
-
 module EventStore
   extend self
+
+  EVENTS = []
 
   def sink(events)
     EVENTS.concat(events)
