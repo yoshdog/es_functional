@@ -11,8 +11,7 @@ fn(state, event) -> state
 
 # Get current state
 
-reduce(initial_state, events, fn(state, event) -> pattern_match(event, fn(state, event) -> state))
-
+foldl(pattern_match, events) -> state
 ```
 
 This repo is me trying to implement a bank account app using these simple concepts.
